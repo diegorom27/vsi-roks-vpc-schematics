@@ -33,17 +33,22 @@ variable resource_group {
 }
 
 variable "name_vpc" {
-  description = "vpc name primary region"
+  description = "vpc name region"
 }
 
-variable "subnet_zone_pr" {
+variable "name_subnet" {
+  description = "subnet name region"
+}
+
+variable "subnet_zone" {
   default = "1"
   description = "number that identify the zone"
 }
 
 variable "ssh_keyname" {
-  description = "ssh key name of primary region"
+  description = "ssh key name of region"
 }
+
 variable "rhel_image" {
   description = "Avaible RHEL image in the specific region"
   default = "red-8-amd64"
