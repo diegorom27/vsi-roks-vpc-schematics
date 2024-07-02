@@ -58,15 +58,15 @@ variable control_plane {
     }))
     default = [
         {
-            hostname = "controlplane01.satellite-demo.cloud"
+            hostname = "controlplane01-satellitedemo-cloud"
             disks    = [125]
         },
         {
-            hostname = "controlplane02.satellite-demo.cloud"
+            hostname = "controlplane02-satellitedemo-cloud"
             disks    = [125]
         },
         {
-            hostname = "controlplane03.satellite-demo.cloud"
+            hostname = "controlplane03-satellitedemo-cloud"
             disks    = [125]
         },
     ]
@@ -80,11 +80,11 @@ variable worker_nodes {
         }))
     default     = [
         {
-            hostname     = "worker01.satellite-demo.cloud"
+            hostname     = "worker01-satellitedemo-cloud"
             disks = [100]
         },
         {
-            hostname     = "worker02.satellite-demo.cloud"
+            hostname     = "worker02-satellitedemo-cloud"
             disks = [100]
         },
         {
@@ -102,15 +102,15 @@ variable ODF {
         }))
     default     = [
         {
-            hostname     = "worker01.satellite-demo.cloud"
+            hostname     = "worker01-satellitedemo-cloud"
             disks = [100,100,300]
         },
         {
-            hostname     = "worker02.satellite-demo.cloud"
+            hostname     = "worker02-satellitedemo-cloud"
             disks = [100,100,300]
         },
         {
-            hostname     = "worker03.satellite-demo.cloud "
+            hostname     = "worker03-satellite-demo-cloud "
             disks = [100,100,300]
         }
     ]
