@@ -85,7 +85,7 @@ resource "ibm_is_instance" "control_plane" {
     resource_group = data.ibm_resource_group.group.id
 
     boot_volume{
-        name = "boot-volume-controlplane0${count.index + 1}"
+        name = "boot-volume-${each.value.hostname}"
         size = 25
     }
 }
