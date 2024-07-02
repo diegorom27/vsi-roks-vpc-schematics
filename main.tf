@@ -80,7 +80,7 @@ resource "ibm_is_instance" "control_plane" {
     }
 
     vpc       = data.ibm_is_vpc.pr_vpc.id
-    zone      = "${var.region}-${var.subnet_zone}"
+    zone      = "${var.ibm_region}-${var.subnet_zone}"
     keys      = [data.ibm_is_ssh_key.sshkey.id]
     resource_group = data.ibm_resource_group.group.id
 
