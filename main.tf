@@ -13,6 +13,7 @@ terraform {
 # Provider
 ##############################################################################
 # ibmcloud_api_key = var.ibmcloud_api_key
+
 provider ibm {
     alias  = "primary"
     region = var.ibm_region
@@ -21,97 +22,105 @@ provider ibm {
 ##############################################################################
 # Resource Group
 ##############################################################################
+
 data ibm_resource_group group {
     provider = ibm.primary
     name = var.resource_group
 }
 ##############################################################################
+# Recuperar data de la SSH Key
+##############################################################################
+
+data "ibm_is_ssh_key" "sshkeypr" {
+  provider = ibm.primary
+  name = var.ssh_keyname
+}
+##############################################################################
+# Recuperar data de la VPC primary
+##############################################################################
+
+data "ibm_is_vpc" "pr_vpc" {
+  provider = ibm.primary
+  name = var.name_vpc
+}
+
+##############################################################################
+# Recuperar data de la subnet primary
+##############################################################################
+
+data "ibm_is_subnet" "pr_subnet" {
+  provider = ibm.primary
+  name = var.name_subnet
+}
+
+##############################################################################
 # Control plane
 # ibmcloud sl hardware create-options
 # OS_RHEL_8_X_64_BIT_PER_PROCESSOR_LICENSING      REDHAT_8_64
 ##############################################################################
-# Crear almacenamiento en bloque para cada disco
-resource "ibm_storage_block" "control_plane_storage" {
-  for_each = {
-    for vm in var.control_plane : vm.hostname => { for idx, size in vm.disks : "${vm.hostname}-${idx}" => size }
-  }
-  type = "standard"
-  os_format_type = "Linux"
-  id           = "${each.key}"
-  datacenter       = "dal13"
-  capacity       = each.value
-  iops           = 3
+
+
+#resource "ibm_is_volume" "control_plane_storage" {
+#    count =  3
+#    name = "controlplane0${count.index + 1}.storage.satellite-demo.cloud"
+#    zone       = "dal13"
+#    profile = "5iops-tier"
+#    capacity = 100
+#}
+
+resource "ibm_is_instance" "control_plane" {
+    for_each = { for vm in var.control_plane : vm.hostname => vm }
+    provider = ibm.primary
+    name    = each.value.hostname
+    profile = "bx2d-4x16"
+    image = "red-8-amd64"
+
+    primary_network_interface {
+      subnet = data.ibm_is_subnet.pr_subnet.id
+    }
+
+    vpc       = data.ibm_is_vpc.pr_vpc.id
+    zone      = "${var.region-pr}-${var.subnet_zone_pr}"
+    keys      = [data.ibm_is_ssh_key.sshkeypr.id]
+    resource_group = data.ibm_resource_group.group.id
+
+    boot_volume{
+        name = "boot-volume-controlplane0${count.index + 1}"
+        size = 25
+    }
 }
 
-resource "ibm_compute_vm_instance" "control_plane" {
-    for_each             = { for vm in var.control_plane : vm.hostname => vm }
-    domain               = "clusteropenshift.com"
-    os_reference_code    = "REDHAT_8_64"
-    datacenter           = "dal13"
-    hourly_billing       = true
-    private_network_only = false
-    cores                = 4
-    memory               = 16384
-    disks                = [25]
-    local_disk           = true
-    hostname = each.value.hostname
+locals {
+  instance_ids = { for k, v in ibm_is_instance.control_plane : k => v.id }
+}
+
+resource "ibm_is_instance_volume_attachment" "example" {
+    for_each = {
+        for vm in var.control_plane : vm.hostname => { for idx, size in vm.disks : "${vm.hostname}-${idx}" => size }
+    }
+    instance = local.instance_ids[each.key]
+    name                                = "example-col-att-3"
+    iops                                = 5
+    capacity                            = each.value
+    delete_volume_on_attachment_delete  = true
+    delete_volume_on_instance_delete    = true
+    volume_name                         = "storage.${each.key}"
+
+    //User can configure timeouts
+    timeouts {
+        create = "15m"
+        update = "15m"
+        delete = "15m"
+    }
 }
 
 ##############################################################################
 # Worker nodes
 ##############################################################################
 
-resource "ibm_storage_block" "worker_nodes_storage" {
-  for_each = {
-    for vm in var.worker_nodes : vm.hostname => { for idx, size in vm.disks : "${vm.hostname}-${idx}" => size }
-  }
-  type = "standard"
-  os_format_type = "Linux"
-  id         = "${each.key}"
-  datacenter     = "dal13"
-  capacity       = each.value
-  iops           = 3
-}
 
-resource "ibm_compute_vm_instance" "worker_nodes" {
-    for_each             = { for vm in var.worker_nodes : vm.hostname => vm }
-    domain               = "clusteropenshift.com"
-    os_reference_code    = "REDHAT_8_64"
-    datacenter           = "dal13"
-    hourly_billing       = true
-    private_network_only = false
-    cores                = 4
-    memory               = 16384
-    disks                = [25]
-    local_disk           = true
-    hostname = each.value.hostname
-}
 
 ##############################################################################
-# ODF
+# ODF 
+# profile bx2-8x32
 ##############################################################################
-
-resource "ibm_storage_block" "ODF_nodes_storage" {
-  for_each = {
-    for vm in var.ODF : vm.hostname => { for idx, size in vm.disks : "${vm.hostname}-${idx}" => size }
-  }
-  type = "standard"
-  os_format_type = "Linux"
-  id         = "${each.key}"
-  datacenter     = "dal13"
-  capacity       = each.value
-  iops           = 3
-}
-resource "ibm_compute_vm_instance" "ODF" {
-    for_each             = { for vm in var.ODF : vm.hostname => vm }
-    domain               = "clusteropenshift.com"
-    os_reference_code    = "REDHAT_8_64"
-    datacenter           = "dal13"
-    hourly_billing       = true
-    private_network_only = false
-    cores                = 8
-    memory               = 32768
-    disks                = [25]
-    local_disk           = true
-    hostname = each.value.hostname
-}
