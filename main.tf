@@ -31,7 +31,7 @@ data ibm_resource_group group {
 # Recuperar data de la SSH Key
 ##############################################################################
 
-data "ibm_is_ssh_key" "sshkeypr" {
+data "ibm_is_ssh_key" "sshkey" {
   provider = ibm.primary
   name = var.ssh_keyname
 }
@@ -73,15 +73,15 @@ resource "ibm_is_instance" "control_plane" {
     provider = ibm.primary
     name    = each.value.hostname
     profile = "bx2d-4x16"
-    image = "red-8-amd64"
+    image = var.rhel_image
 
     primary_network_interface {
       subnet = data.ibm_is_subnet.pr_subnet.id
     }
 
     vpc       = data.ibm_is_vpc.pr_vpc.id
-    zone      = "${var.region-pr}-${var.subnet_zone_pr}"
-    keys      = [data.ibm_is_ssh_key.sshkeypr.id]
+    zone      = "${var.region}-${var.subnet_zone}"
+    keys      = [data.ibm_is_ssh_key.sshkey.id]
     resource_group = data.ibm_resource_group.group.id
 
     boot_volume{

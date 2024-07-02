@@ -5,6 +5,7 @@
 variable ibm_region {
     description = "IBM Cloud region where all resources will be deployed"
     type        = string
+    default = "us-south"
 
     validation  {
       error_message = "Must use an IBM Cloud region. Use `ibmcloud regions` with the IBM Cloud CLI to see valid regions."
@@ -29,6 +30,23 @@ variable resource_group {
       error_message = "Unique ID must begin and end with a letter and contain only letters, numbers, and - characters."
       condition     = can(regex("^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$", var.resource_group))
     }
+}
+
+variable "name_vpc" {
+  description = "vpc name primary region"
+}
+
+variable "subnet_zone_pr" {
+  default = "1"
+  description = "number that identify the zone"
+}
+
+variable "ssh_keyname" {
+  description = "ssh key name of primary region"
+}
+variable "rhel_image" {
+  description = "Avaible RHEL image in the specific region"
+  default = "red-8-amd64"
 }
 
 variable control_plane {
