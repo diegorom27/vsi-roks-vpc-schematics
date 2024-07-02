@@ -117,7 +117,6 @@ resource "ibm_is_instance_volume_attachment" "control_plane_storage" {
 
   instance                           = local.instance_ids[each.value.hostname]
   name                               = "storage-attachment-${each.key}"
-  iops                               = 5
   capacity                           = each.value.disk_size
   delete_volume_on_attachment_delete = true
   delete_volume_on_instance_delete   = true
