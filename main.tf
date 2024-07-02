@@ -86,7 +86,7 @@ resource "ibm_is_instance" "control_plane" {
 
     boot_volume{
         name = "boot-volume-${each.value.hostname}"
-        size = 25
+        size = 100
     }
 }
 
