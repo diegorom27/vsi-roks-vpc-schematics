@@ -94,24 +94,40 @@ locals {
   instance_ids = { for k, v in ibm_is_instance.control_plane : k => v.id }
 }
 
-resource "ibm_is_instance_volume_attachment" "example" {
-    for_each = {
-        for vm in var.control_plane : vm.hostname => { for idx, size in vm.disks : "${vm.hostname}-${idx}" => size }
-    }
-    instance = local.instance_ids[each.key]
-    name                                = "example-col-att-3"
-    iops                                = 5
-    capacity                            = each.value
-    delete_volume_on_attachment_delete  = true
-    delete_volume_on_instance_delete    = true
-    volume_name                         = "storage.${each.key}"
+locals {
+  # Flatten to a list of maps where each map contains `hostname`, `disk_index`, and `disk_size`
+  flattened_disks = flatten([
+    for cp in var.control_plane : [
+      for idx, size in cp.disks : {
+        hostname = cp.hostname
+        disk_index = idx
+        disk_size = size
+      }
+    ]
+  ])
 
-    //User can configure timeouts
-    timeouts {
-        create = "15m"
-        update = "15m"
-        delete = "15m"
-    }
+  # Create a map with keys in the format of `hostname-disk_index`
+  volume_attachment_map = {
+    for disk in local.flattened_disks : "${disk.hostname}-${disk.disk_index}" => disk
+  }
+}
+
+resource "ibm_is_instance_volume_attachment" "control_plane_storage" {
+  for_each = local.volume_attachment_map
+
+  instance                           = local.instance_ids[each.value.hostname]
+  name                               = "storage.attachment.${each.key}"
+  iops                               = 5
+  capacity                           = each.value.disk_size
+  delete_volume_on_attachment_delete = true
+  delete_volume_on_instance_delete   = true
+  volume_name                        = "storage-${each.key}"
+
+  timeouts {
+    create = "15m"
+    update = "15m"
+    delete = "15m"
+  }
 }
 
 ##############################################################################
