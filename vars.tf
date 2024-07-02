@@ -47,7 +47,7 @@ variable "ssh_keyname" {
 
 variable "rhel_image" {
   description = "Avaible RHEL image in the specific region"
-  default = "red-8-amd64"
+  default = "r006-066a97dc-ebb3-4e44-8f1e-9ccae5b47e2a"
 }
 
 variable control_plane {
