@@ -88,7 +88,7 @@ variable worker_nodes {
             disks = [100]
         },
         {
-            hostname     = "worker03-satellite-demo-cloud "
+            hostname     = "worker03-satellite-demo-cloud"
             disks = [100]
         }
     ]
@@ -102,15 +102,15 @@ variable ODF {
         }))
     default     = [
         {
-            hostname     = "worker01-satellitedemo-cloud"
+            hostname     = "odf-satellitedemo-cloud"
             disks = [100,100,300]
         },
         {
-            hostname     = "worker02-satellitedemo-cloud"
+            hostname     = "odf-satellitedemo-cloud"
             disks = [100,100,300]
         },
         {
-            hostname     = "worker03-satellite-demo-cloud "
+            hostname     = "odf-satellite-demo-cloud"
             disks = [100,100,300]
         }
     ]
