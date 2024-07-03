@@ -88,7 +88,7 @@ variable worker_nodes {
             disks = [100]
         },
         {
-            hostname     = "worker03.satellite-demo.cloud "
+            hostname     = "worker03-satellite-demo-cloud "
             disks = [100]
         }
     ]
