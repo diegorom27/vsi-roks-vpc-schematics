@@ -168,7 +168,7 @@ locals {
   }
 }
 
-resource "ibm_is_instance_volume_attachment" "control_plane_storage" {
+resource "ibm_is_instance_volume_attachment" "worker_nodes_storage" {
   for_each = local.volume_attachment_map_worker_nodes
 
   instance                           = local.instance_ids_worker_nodes[each.value.hostname]
@@ -234,7 +234,7 @@ locals {
   }
 }
 
-resource "ibm_is_instance_volume_attachment" "control_plane_storage" {
+resource "ibm_is_instance_volume_attachment" "odf_storage" {
   for_each = local.volume_attachment_map_odf
 
   instance                           = local.instance_ids_odf[each.value.hostname]
