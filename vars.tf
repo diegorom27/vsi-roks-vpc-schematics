@@ -102,15 +102,15 @@ variable ODF {
         }))
     default     = [
         {
-            hostname     = "odf-satellitedemo-cloud"
+            hostname     = "odf01-satellitedemo-cloud"
             disks = [100,100,300]
         },
         {
-            hostname     = "odf-satellitedemo-cloud"
+            hostname     = "odf02-satellitedemo-cloud"
             disks = [100,100,300]
         },
         {
-            hostname     = "odf-satellite-demo-cloud"
+            hostname     = "odf03-satellite-demo-cloud"
             disks = [100,100,300]
         }
     ]
